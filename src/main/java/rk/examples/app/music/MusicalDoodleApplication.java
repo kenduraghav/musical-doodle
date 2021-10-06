@@ -1,9 +1,9 @@
-package rk.examples.springboot;
+package rk.examples.app.music;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import rk.examples.springboot.entity.Album;
+import rk.examples.app.music.entity.Album;
 
 @SpringBootApplication
 public class MusicalDoodleApplication {

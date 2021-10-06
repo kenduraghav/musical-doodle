@@ -1,8 +1,8 @@
-package rk.examples.springboot.repository;
+package rk.examples.app.music.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import rk.examples.springboot.entity.Album;
+import rk.examples.app.music.entity.Album;
 
 public interface AlbumRepository extends JpaRepository<Album, Long> {
 

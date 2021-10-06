@@ -1,4 +1,4 @@
-package rk.examples.springboot;
+package rk.examples.app.music;
 
 import java.util.stream.IntStream;
 
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import com.github.javafaker.Faker;
 
 import lombok.extern.slf4j.Slf4j;
-import rk.examples.springboot.entity.Album;
-import rk.examples.springboot.repository.AlbumRepository;
+import rk.examples.app.music.entity.Album;
+import rk.examples.app.music.repository.AlbumRepository;
 
 @Slf4j
 @Component
