@@ -1,0 +1,6 @@
+= Spring Boot CRUD Application using TDD
+
+This demo app is built using Spring Tool Suite 4 and Spring boot 2.5.5 with OpenJDK:11 built based on the +
+online tutorial.
+
+
