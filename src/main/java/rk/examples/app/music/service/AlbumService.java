@@ -1,9 +1,13 @@
 package rk.examples.app.music.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rk.examples.app.music.entity.Album;
+import rk.examples.app.music.exception.AlbumNotFoundException;
 import rk.examples.app.music.model.AlbumRequest;
 import rk.examples.app.music.repository.AlbumRepository;
 
@@ -14,8 +18,6 @@ public class AlbumService {
 	private AlbumRepository repository;
 	
 	public Long createNewAlbum(AlbumRequest request) {
-		// TODO Auto-generated method stub
-		
 		Album album = Album.builder()
 				.artistName(request.getArtistName())
 				.songName(request.getSongName())
@@ -23,6 +25,19 @@ public class AlbumService {
 		
 		album = repository.save(album);
 		return album.getId();
+	}
+
+	public List<Album> getAlbums() {
+		return repository.findAll();
+	}
+
+	public Album getAlbumById(long id) {
+		Optional<Album> requestedAlbum = repository.findById(id);
+
+		if (requestedAlbum.isEmpty()) {
+			throw new AlbumNotFoundException(String.format("Album with '%d' is not found", id));
+		}
+		return requestedAlbum.get();
 	}
 
 }
