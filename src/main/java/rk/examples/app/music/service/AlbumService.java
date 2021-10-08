@@ -16,7 +16,7 @@ import rk.examples.app.music.repository.AlbumRepository;
 public class AlbumService {
 
 	@Autowired
-	private AlbumRepository repository;
+	private AlbumRepository albumRepo;
 	
 	public Long createNewAlbum(AlbumRequest request) {
 		Album album = Album.builder()
@@ -24,19 +24,19 @@ public class AlbumService {
 				.songName(request.getSongName())
 				.genre(request.getGenre()).build();
 		
-		album = repository.save(album);
+		album = albumRepo.save(album);
 		return album.getId();
 	}
 
 	public List<Album> getAlbums() {
-		return repository.findAll();
+		return albumRepo.findAll();
 	}
 
-	public Album getAlbumById(long id) {
-		Optional<Album> requestedAlbum = repository.findById(id);
+	public Album getAlbumById(Long id) {
+		Optional<Album> requestedAlbum = albumRepo.findById(id);
 
 		if (requestedAlbum.isEmpty()) {
-			throw new AlbumNotFoundException(String.format("Album with '%d' is not found", id));
+			throw new AlbumNotFoundException(String.format("Album with id '%d' is not found", id));
 		}
 		return requestedAlbum.get();
 	}
@@ -50,6 +50,11 @@ public class AlbumService {
 		albumToUpdate.setSongName(albumRequestToUpdate.getSongName());
 		
 		return albumToUpdate;
+	}
+
+	public void deleteAlbumById(Long id) {
+		Album album  = getAlbumById(id);
+		albumRepo.deleteById(album.getId());
 	}
 
 }
