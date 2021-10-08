@@ -3,9 +3,11 @@ package rk.examples.app.music;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,7 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -52,14 +53,17 @@ class AlbumControllerTest {
 		AlbumRequest albumRequest = AlbumRequest.builder()
 				.artistName("raghav")
 				.songName("Thottal Poo Malarum")
-				.genre("Love").build();
+				.genre("Love")
+				.build();
 
 		when(albumService.createNewAlbum(argumentCaptor.capture())).thenReturn(1L);
 
 		this.mockMvc
-				.perform(post("/api/albums").contentType(MediaType.APPLICATION_JSON)
+				.perform(post("/api/albums")
+						.contentType(MediaType.APPLICATION_JSON)
 						.content(mapper.writeValueAsString(albumRequest)))
-				.andExpect(status().isCreated()).andExpect(header().exists("Location"))
+				.andExpect(status().isCreated())
+				.andExpect(header().exists("Location"))
 				.andExpect(header().string("Location", "http://localhost/api/albums/1"));
 
 		assertThat(argumentCaptor.getValue().getArtistName()).isEqualTo("raghav");
@@ -68,8 +72,10 @@ class AlbumControllerTest {
 	@Test
 	public void getAllAlbumsEndpoint_shouldReturnAlbumList() throws Exception {
 
-		when(albumService.getAlbums()).thenReturn(List.of(createNewAlbum(1L, "raghav", "Thottal Poo Malarum", "Love"),
-				createNewAlbum(2L, "Hari", "Malare", "Romantic")));
+		when(albumService.getAlbums())
+			.thenReturn(List.of(
+					createNewAlbum(1L, "raghav", "Thottal Poo Malarum", "Love"),
+					createNewAlbum(2L, "Hari", "Malare", "Romantic")));
 
 		this.mockMvc.perform(get("/api/albums")).andExpect(status().isOk())
 				.andExpect(content().contentType("application/json"))
@@ -78,13 +84,13 @@ class AlbumControllerTest {
 				.andExpect(jsonPath("$[0].artistName", is("raghav")))
 				.andExpect(jsonPath("$[0].genre", is("Love")))
 				.andExpect(jsonPath("$[0].id", is(1)));
-
 	}
 
 	@Test
 	public void getAlbumById_shouldReturnAnAlbum() throws Exception {
-		
-		when(albumService.getAlbumById(1L)).thenReturn(createNewAlbum(1L, "raghav", "Thottal Poo Malarum", "Love"));
+
+		when(albumService.getAlbumById(1L))
+		    .thenReturn(createNewAlbum(1L, "raghav", "Thottal Poo Malarum", "Love"));
 
 		this.mockMvc.perform(get("/api/albums/1")).andExpect(status().isOk())
 				.andExpect(content().contentType("application/json"))
@@ -93,12 +99,59 @@ class AlbumControllerTest {
 				.andExpect(jsonPath("$.genre", is("Love")))
 				.andExpect(jsonPath("$.id", is(1)));
 	}
-	
+
 	@Test
 	void getAlbumWithUnknownId_shouldReturn404() throws Exception {
-		when(albumService.getAlbumById(33L)).thenThrow(new AlbumNotFoundException("Requested Album not found in the albums"));
+		when(albumService.getAlbumById(33L))
+				.thenThrow(new AlbumNotFoundException("Requested Album not found in the albums"));
 
 		this.mockMvc.perform(get("/api/albums/33")).andExpect(status().isNotFound());
+	}
+
+	@Test
+	void updateAlbumWithKnownId_shouldUpdateTheAlbum() throws Exception {
+
+		AlbumRequest albumRequest = AlbumRequest.builder()
+				.artistName("Hari")
+				.songName("Thottal Poo Malarum")
+				.genre("Remix")
+				.build();
+
+		when(albumService.updateAlbum(eq(1L), argumentCaptor.capture()))
+				.thenReturn(createNewAlbum(1L, "Hari", "Thottal Poo Malarum", "Remix"));
+
+		this.mockMvc
+				.perform(put("/api/albums/1")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(albumRequest)))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("application/json"))
+				.andExpect(jsonPath("$.songName", is("Thottal Poo Malarum")))
+				.andExpect(jsonPath("$.artistName", is("Hari")))
+				.andExpect(jsonPath("$.genre", is("Remix")))
+				.andExpect(jsonPath("$.id", is(1)));
+
+		assertThat(argumentCaptor.getValue().getArtistName()).isEqualTo("Hari");
+		assertThat(argumentCaptor.getValue().getSongName()).isEqualTo("Thottal Poo Malarum");
+		assertThat(argumentCaptor.getValue().getGenre()).isEqualTo("Remix");
+	}
+	
+	@Test
+	void updateAlbumWithUnknownId_shouldReturn404() throws Exception {
+		AlbumRequest albumRequest = AlbumRequest.builder()
+				.artistName("Hari")
+				.songName("Thottal Poo Malarum")
+				.genre("Remix")
+				.build();
+
+		when(albumService.updateAlbum(eq(33L), argumentCaptor.capture()))
+				.thenThrow(new AlbumNotFoundException("Requested Album not found in the albums"));
+
+		this.mockMvc
+				.perform(put("/api/albums/33")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(albumRequest)))
+				.andExpect(status().isNotFound());
 	}
 
 	private Album createNewAlbum(long id, String artist, String song, String genre) {

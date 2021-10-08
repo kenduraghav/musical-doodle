@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import rk.examples.app.music.entity.Album;
 import rk.examples.app.music.exception.AlbumNotFoundException;
@@ -38,6 +39,17 @@ public class AlbumService {
 			throw new AlbumNotFoundException(String.format("Album with '%d' is not found", id));
 		}
 		return requestedAlbum.get();
+	}
+
+	@Transactional
+	public Album updateAlbum(Long id, AlbumRequest albumRequestToUpdate) {
+		Album albumToUpdate = getAlbumById(id);
+		
+		albumToUpdate.setArtistName(albumRequestToUpdate.getArtistName());
+		albumToUpdate.setGenre(albumRequestToUpdate.getGenre());
+		albumToUpdate.setSongName(albumRequestToUpdate.getSongName());
+		
+		return albumToUpdate;
 	}
 
 }

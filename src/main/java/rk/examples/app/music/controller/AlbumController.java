@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,14 +41,19 @@ public class AlbumController {
 
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 	}
-	
+
 	@GetMapping
-	public ResponseEntity<List<Album>> getAllAlbums(){
+	public ResponseEntity<List<Album>> getAllAlbums() {
 		return ResponseEntity.ok(albumService.getAlbums());
 	}
-	
+
 	@GetMapping("/{id}")
-	public ResponseEntity<Album> getAlbumById(@PathVariable Long id){
+	public ResponseEntity<Album> getAlbumById(@PathVariable Long id) {
 		return ResponseEntity.ok(albumService.getAlbumById(id));
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<Album> updateAlbumById(@PathVariable Long id, @Valid @RequestBody AlbumRequest albumRequest) {
+		return ResponseEntity.ok(albumService.updateAlbum(id, albumRequest));
 	}
 }
